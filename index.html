@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Payment — QRIS & E-Wallet</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Reset */
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+    background:linear-gradient(135deg,#071027 0%,#081229 45%,#041426 100%);
+    color:#e6f1ff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px;
+  }
+
+  /* Card */
+  .card{
+    width:100%;
+    max-width:980px;
+    display:grid;
+    grid-template-columns:1fr 360px;
+    gap:22px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.05);
+    border-radius:14px;
+    padding:22px;
+    box-shadow:0 12px 40px rgba(2,6,23,0.6);
+    backdrop-filter:blur(6px);
+  }
+
+  /* Left */
+  .left h1{
+    font-size:1.6rem;
+    margin-bottom:6px;
+    letter-spacing:-0.3px;
+  }
+  .lead{color:#bcd6ff;margin-bottom:14px;font-size:0.98rem}
+  .grid-methods{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+  }
+  .method{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    padding:12px;
+    border-radius:12px;
+    background:rgba(255,255,255,0.02);
+    border:1px solid rgba(255,255,255,0.03);
+    transition:transform .14s ease, box-shadow .14s ease;
+  }
+  .method:hover{ transform:translateY(-6px); box-shadow:0 10px 30px rgba(2,6,23,0.55) }
+  .badge{
+    width:54px;height:54px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;font-weight:700;
+    background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    flex-shrink:0;
+    font-size:1rem;
+  }
+  .meta .title{font-weight:600}
+  .meta .desc{font-size:0.88rem;color:#b6d0ff;word-break:break-all;margin-top:4px}
+
+  .actions{margin-left:auto;display:flex;gap:8px}
+  .btn{
+    border:1px solid rgba(255,255,255,0.06);
+    background:transparent;color:#cfe7ff;padding:8px 10px;border-radius:10px;
+    cursor:pointer;font-size:0.92rem;display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn.primary{
+    border:none;background:linear-gradient(90deg,#2dd4bf,#60a5fa);color:#042533;font-weight:700;
+  }
+
+  .note{font-size:0.88rem;color:#b9d9ff;margin-top:12px}
+
+  /* Right */
+  .right{
+    border-radius:12px;padding:16px;display:flex;flex-direction:column;align-items:center;
+    background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.03);
+  }
+  .qr-wrap{width:100%;max-width:280px;border-radius:12px;overflow:hidden;background:#fff;padding:10px;box-shadow:0 8px 28px rgba(2,6,23,0.45)}
+  .qr-wrap img{display:block;width:100%;height:auto;object-fit:cover}
+  .right .title{font-weight:700;color:#e9f6ff}
+  .right .muted{color:#9fbbe3;font-size:0.88rem}
+
+  .right .controls{display:flex;gap:8px;margin-top:12px}
+  .small{font-size:0.86rem;color:#9fc5ff}
+
+  /* Toast */
+  .toast{
+    position:fixed;left:50%;transform:translateX(-50%);bottom:26px;background:#05263b;color:#cfefff;padding:10px 14px;border-radius:10px;
+    border:1px solid rgba(255,255,255,0.04);box-shadow:0 10px 30px rgba(2,6,23,0.6);opacity:0;pointer-events:none;transition:all .28s ease;z-index:9999;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+
+  /* Responsive */
+  @media (max-width:920px){
+    .card{grid-template-columns:1fr; padding:18px}
+    .grid-methods{grid-template-columns:1fr}
+    .right{order:-1}
+  }
+</style>
+</head>
+<body>
+  <main class="card" role="main" aria-labelledby="title">
+    <section class="left" aria-label="Metode Pembayaran">
+      <h1 id="title">Metode Pembayaran — Cepat & Aman</h1>
+      <p class="lead">Pilih metode, salin nomor, atau scan QR untuk melakukan pembayaran dalam hitungan detik.</p>
+
+      <div class="grid-methods" role="list">
+        <!-- DANA -->
+        <article class="method" role="listitem" aria-label="DANA">
+          <div class="badge" aria-hidden="true">D</div>
+          <div class="meta">
+            <div class="title">DANA</div>
+            <div class="desc" id="dana">088989235532</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="copyNum('088989235532','DANA')">Salin</button>
+            <button class="btn primary" onclick="focusQR()">Scan</button>
+          </div>
+        </article>
+
+        <!-- GoPay -->
+        <article class="method" role="listitem" aria-label="GoPay">
+          <div class="badge" aria-hidden="true">G</div>
+          <div class="meta">
+            <div class="title">GoPay</div>
+            <div class="desc" id="gopay">088989235532</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="copyNum('088989235532','GoPay')">Salin</button>
+            <button class="btn primary" onclick="focusQR()">Scan</button>
+          </div>
+        </article>
+
+        <!-- OVO -->
+        <article class="method" role="listitem" aria-label="OVO">
+          <div class="badge" aria-hidden="true">O</div>
+          <div class="meta">
+            <div class="title">OVO</div>
+            <div class="desc" id="ovo">088989235532</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="copyNum('088989235532','OVO')">Salin</button>
+            <button class="btn primary" onclick="focusQR()">Scan</button>
+          </div>
+        </article>
+
+        <!-- QRIS hint -->
+        <article class="method" role="listitem" aria-label="QRIS">
+          <div class="badge" aria-hidden="true">QR</div>
+          <div class="meta">
+            <div class="title">QRIS</div>
+            <div class="desc">Scan QR di panel kanan untuk pembayaran cepat.</div>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="focusQR()">Buka QR</button>
+          </div>
+        </article>
+      </div>
+
+      <p class="note">Catatan: Pastikan nominal dan tujuan transfer benar. Simpan bukti pembayaran untuk verifikasi jika diperlukan.</p>
+    </section>
+
+    <aside class="right" id="qpanel" aria-label="QRIS dan kontrol">
+      <div style="width:100%;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="title">QRIS — Scan di sini</div>
+          <div class="muted">Buka aplikasi e-wallet > Scan</div>
+        </div>
+        <div class="small">Metode cepat</div>
+      </div>
+
+      <div class="qr-wrap" id="qrbox" role="img" aria-label="QRIS kode pembayaran">
+        <img id="qimg" src="https://files.catbox.moe/nsixbh.jpeg" alt="QRIS untuk pembayaran">
+      </div>
+
+      <div class="muted" style="text-align:center;margin-top:10px">
+        Atau salin nomor e-wallet di kiri untuk transfer manual.
+      </div>
+
+      <div class="controls" role="group" aria-label="Kontrol QR">
+        <button class="btn" onclick="downloadQR()">Unduh QR</button>
+        <button class="btn" onclick="openQR()">Buka di tab baru</button>
+      </div>
+    </aside>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+  // Copy function with fallback & toast
+  function copyNum(number,label){
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(number).then(() => showToast(label + ' — nomor disalin ✅'), ()=> showToast('Gagal menyalin'));
+    } else {
+      // fallback
+      const ta = document.createElement('textarea');
+      ta.value = number;
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast(label + ' — nomor disalin ✅');
+      } catch(e){
+        showToast('Gagal menyalin');
+      }
+      ta.remove();
+    }
+  }
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._t);
+    t._t = setTimeout(()=> t.classList.remove('show'),2400);
+  }
+
+  // Focus/animate QR panel
+  function focusQR(){
+    const el = document.getElementById('qrbox');
+    el.scrollIntoView({behavior:'smooth', block:'center'});
+    el.style.boxShadow = '0 0 0 6px rgba(96,165,250,0.12), 0 12px 40px rgba(2,6,23,0.55)';
+    setTimeout(()=> el.style.boxShadow = '', 1400);
+  }
+
+  // Download and open QR
+  const QR_URL = 'https://files.catbox.moe/nsixbh.jpeg';
+  function downloadQR(){
+    const a = document.createElement('a');
+    a.href = QR_URL;
+    a.download = 'qris-payment.jpg';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    showToast('Mengunduh QR...');
+  }
+  function openQR(){
+    window.open(QR_URL, '_blank', 'noopener');
+  }
+
+  // Accessibility: allow Esc to dismiss toast
+  document.addEventListener('keydown',(e)=>{
+    if(e.key === 'Escape') document.getElementById('toast').classList.remove('show');
+  });
+</script>
+</body>
+</html>
